@@ -12,30 +12,22 @@ def cubic_latice(N_particles,L,W):
 
 
 def distance_and_direction(pos_at_t):
+    a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
+    at=np.transpose(a)
 
-    return()
+    distance_x=np.abs(at-a)
+    
+    b=np.tile(pos_at_t[:,1],(len(pos_at_t),1))
+    bt=np.transpose(b)
+
+    distance_y=np.abs(bt-b)
+    
+    
+    distance=np.sqrt(distance_x**2+distance_y**2)
     
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    return(distance)
     
     
