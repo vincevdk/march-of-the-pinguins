@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as py
+from math import acos
 
 def cubic_latice(N_particles):
     pos_at_0=np.array(np.meshgrid(range(np.int(N_particles**.5)), range(np.int(N_particles**.5)))).T.reshape(-1, 2)
-    pos_at_0[:,0]=pos_at_0[:,0]*2
-    pos_at_0[:,1]=pos_at_0[:,1]*2
+    deviations = np.random.rand(N_particles,2)*0.2
+    pos_at_0 = pos_at_0*2 + deviations
+    
     return(pos_at_0)
 
 def size_of_particles(N_particles, mean, standard_deviation):
@@ -12,15 +14,20 @@ def size_of_particles(N_particles, mean, standard_deviation):
     return(radii)
 
 def check_for_neighbors(pos,colours):
-#    colours = ['-g']*len(pos)
-    print(len(pos),'length')
+
     for i in range(len(pos)): # loop through particles
-        distance_between_particles = ((pos[i,0]-pos[:,0])**2+(pos[i,0]-pos[:,1])**2)**0.5
-        neighbors = np.asarray(distance_between_particles<2.7).nonzero()
-        print(neighbors)
-        if len(neighbors[0])  <= 4:
+        dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
+        neighbors = np.asarray(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
+        angles = np.zeros(len(neighbors[0]))
+        for j in range(len(neighbors[0])):
+
+            difference_vector = [pos[neighbors[0][j],0]-pos[i,0],pos[neighbors[0][j],1] - pos[i,1]]
+
+            angles[j] = (calculate_angle_wrt_x_axis(difference_vector))
+
+        if (abs(np.amax(angles) - np.amin(angles)) <= 180):
             colours[i] = '-b'
-            print(colours)
+
     return(colours)
         
 def update_position(position, colours):
@@ -28,20 +35,17 @@ def update_position(position, colours):
     position += 0.1
     return(position, colours)
 
-def distance_and_direction(pos_at_t):
-    a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
-    at=np.transpose(a)
+def calculate_angle_wrt_x_axis(v):
+    # see first answer: https://stackoverflow.com/questions/31735499/calculate-angle-clockwise-between-two-points
 
-    distance_x=np.abs(at-a)
+    norm_v = np.linalg.norm(v)
     
-    b=np.tile(pos_at_t[:,1],(len(pos_at_t),1))
-    bt=np.transpose(b)
+    cosx=v[0]/norm_v
+    degrees = acos(cosx) * 180/np.pi
+    print(degrees,'degrees')
+    if v[1]<=0:
+        return degrees
+    else:
+        return (360-degrees)
+    
 
-    distance_y=np.abs(bt-b)
-    
-    
-    distance=np.sqrt(distance_x**2+distance_y**2)    
-    
-    return(distance)
-    
-    
