@@ -53,4 +53,6 @@ def circle_overlap(R1,R2,d):
         a=R1**2*np.arccos((d**2+R1**2-R2**2)/(2*d*R1))+R2**2*np.arccos((d**2-R1**2+R2**2)/(2*d*R2))-(1/2)*np.sqrt((-d+R1+R2)*(d+R1-R2)*(d-R1+R2)*(d+R1+R2))
     if np.abs(R1-R2)>d:
         a=min([R1 ,R2])**2*np.pi
+    else:
+        a=0
     return(a)
