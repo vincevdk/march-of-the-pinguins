@@ -23,6 +23,13 @@ colours[:,:] = '-g'
 
 ###perform simulation
 for time_step in range(1,N_steps):
+    # force_per_particle, torque_per_particle,colours = calculate_force_and_torque(positions,orientations)
+
+    # move_particle = (velocity * timestep) where speed is F/(alpha * Xi) 
+    # turn_particle  = (angular velocity * timestep) where angular velocity is 
+    
+    
+
     pos[:,:,time_step], colours[:,time_step], mid_angle[time_step,:] = update_position(pos[:,:,time_step-1],colours[:,time_step-1])
 mid_angle[0] = mid_angle[1]
 
