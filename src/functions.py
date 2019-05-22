@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as py
 from math import acos
+import matplotlib.colors as colorlib
+
 
 def cubic_latice(N_particles):
     pos_at_0=np.array(np.meshgrid(range(np.int(N_particles**.5)), range(np.int(N_particles**.5)))).T.reshape(-1, 2)
@@ -77,7 +79,10 @@ def calculate_angle_wrt_neg_x_axis(v):
 
     
 def update_color(radii,pos,colours):
+    Blues = py.get_cmap('Blues')
     overlap=np.zeros(len(pos))
+    percentage_overlap=np.zeros(len(pos))
+
     for i in range(len(pos)): # loop through particles
         
         dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
@@ -87,11 +92,13 @@ def update_color(radii,pos,colours):
             
             d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
             overlap[i]+=circle_overlap(radii[i],radii[j],d)
-            
-        if overlap[i]==0:
-            colours[i] = '-b'
+            percentage_overlap[i]=overlap[i]/(np.pi*radii[i])
+        if percentage_overlap[i]==0:
+            colours[i] = '-r'
         else:
-            colours[i]="-y"
+ 
+            colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.5)[0:3])
+    test_overlap=overlap
     return(colours)
 
 def circle_overlap(R1,R2,d):
