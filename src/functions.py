@@ -97,7 +97,7 @@ def update_color(radii,pos,colours):
             colours[i] = '-r'
         else:
  
-            colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.5)[0:3])
+            colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.3)[0:3])
     test_overlap=overlap
     return(colours)
 
