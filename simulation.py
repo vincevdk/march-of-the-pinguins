@@ -2,7 +2,7 @@ import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from IPython.display import HTML
+#from IPython.display import HTML
 
 from src.functions import *
 from src.config import *
@@ -56,8 +56,8 @@ plt.grid()
 plt.axes().set_aspect('equal')
 
 ani = animation.ArtistAnimation(fig, lns, interval=50)
-HTML(ani.to_html5_video())
-
+#HTML(ani.to_html5_video())
+plt.show()
 
 
 
