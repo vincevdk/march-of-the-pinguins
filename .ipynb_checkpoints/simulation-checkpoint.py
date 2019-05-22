@@ -24,7 +24,6 @@ colours[:,:] = '-g'
 ###perform simulation
 for time_step in range(1,N_steps):
     pos[:,:,time_step], colours[:,time_step], mid_angle[time_step,:] = update_position(pos[:,:,time_step-1],colours[:,time_step-1])
-    colours[:,time_step]=update_color(radii,pos[:,:,time_step-1],colours[:,time_step-1])
 mid_angle[0] = mid_angle[1]
 
 

@@ -74,31 +74,3 @@ def calculate_angle_wrt_neg_x_axis(v):
         return degrees
     else:
         return (360-degrees)
-
-    
-def update_color(radii,pos,colours):
-    overlap=np.zeros(len(pos))
-    for i in range(len(pos)): # loop through particles
-        
-        dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
-        neighbors = np.array(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
-        
-        for j in neighbors[0]:
-            
-            d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
-            overlap[i]+=circle_overlap(radii[i],radii[j],d)
-            
-        if overlap[i]==0:
-            colours[i] = '-b'
-        else:
-            colours[i]="-y"
-    return(colours)
-
-def circle_overlap(R1,R2,d):
-    if d<=R1+R2 and np.abs(R1-R2)<=d:
-        a=R1**2*np.arccos((d**2+R1**2-R2**2)/(2*d*R1))+R2**2*np.arccos((d**2-R1**2+R2**2)/(2*d*R2))-(1/2)*np.sqrt((-d+R1+R2)*(d+R1-R2)*(d-R1+R2)*(d+R1+R2))
-    if np.abs(R1-R2)>d:
-        a=min([R1 ,R2])**2*np.pi
-    if np.abs(R1+R2)<d:
-        a=0
-    return(a)
