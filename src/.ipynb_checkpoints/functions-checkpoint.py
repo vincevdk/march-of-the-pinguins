@@ -109,3 +109,18 @@ def circle_overlap(R1,R2,d):
     if np.abs(R1+R2)<d:
         a=0
     return(a)
+
+def force_overlap(radii,pos,F_overlap_constant):
+    Force_overlap=np.zeros(shape=(len(pos),2))
+    for i in range(len(pos)): # loop through particles
+        
+        dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
+        neighbors = np.array(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
+        
+        for j in neighbors[0]:
+            
+            d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
+            direction=[pos[i,0]-pos[j,0],pos[i,1]-pos[j,1]]/d
+            Force_overlap[i,:]=direction*circle_overlap(radii[i],radii[j],d)*F_overlap_constant
+          
+    return(Force_overlap)
