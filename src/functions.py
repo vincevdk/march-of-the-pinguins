@@ -11,7 +11,33 @@ def cubic_latice(N_particles):
     
     return(pos_at_0)
 
-#def orientation_at_0():
+def orientation_at_0(N_particles, N_steps):
+    orientation = np.ones(N_particles)
+    deviation = np.random.uniform(-0.785, 0.785, N_particles)
+    deviation = np.tile(deviation, (N_steps,1))
+    orientation_x = orientation*np.cos(deviation)
+    orientation_y = orientation*np.sin(deviation)
+    return(orientation_x, orientation_y)
+
+def delta_thetas(bisection, deviation_0):
+    bisection[bisection<0] = 360 - abs(bisection[bisection<0])
+    delta_theta = abs(360 - bisection - deviation_0)
+
+    #delta_theta_0 = abs(bisection - deviation_0)
+    #delta_theta_1 = abs(bisection + deviation_0)
+    #delta_theta = np.minimum(delta_theta_0, delta_theta_1)
+    delta_theta[delta_theta>180] = 360 - delta_theta[delta_theta>180]
+    delta_theta[bisection==0] = 0
+    #delta_theta = delta_theta/360
+    return(delta_theta)
+
+def noise_torque(N_particles):
+    noise = np.random.uniform(1, -1, N_particles)
+    return(noise)
+
+def change_torque():
+    new_torque = noise_torque(N_particles) + delta_thetas(bisection, deviation_0)
+    return(new_torque)
 
 def size_of_particles(N_particles, mean, standard_deviation):
     radii = (np.random.normal(mean,standard_deviation,N_particles))
@@ -41,9 +67,7 @@ def check_for_neighbors(pos,colours):
             print((max(angles[:,1])+min(angles[:,1]))/2)
             bisection[i] = (max(angles[:,1])+min(angles[:,1]))/2+180
             colours[i] = '-r'
-
-#        else:
-#            bisection[i] = 90       
+     
     return(colours, bisection)
         
 def update_position(position, colours):
