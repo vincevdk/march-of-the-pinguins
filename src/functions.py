@@ -22,10 +22,6 @@ def orientation_at_0(N_particles, N_steps):
 def delta_thetas(bisection, deviation_0):
     bisection[bisection<0] = 360 - abs(bisection[bisection<0])
     delta_theta = abs(360 - bisection - deviation_0)
-
-    #delta_theta_0 = abs(bisection - deviation_0)
-    #delta_theta_1 = abs(bisection + deviation_0)
-    #delta_theta = np.minimum(delta_theta_0, delta_theta_1)
     delta_theta[delta_theta>180] = 360 - delta_theta[delta_theta>180]
     delta_theta[bisection==0] = 0
     #delta_theta = delta_theta/360
@@ -64,10 +60,9 @@ def check_for_neighbors(pos,colours):
             colours[i] = '-b'
         
         elif (abs(np.amax(angles[:,1]) - np.amin(angles[:,1])) <= 180):
-            print((max(angles[:,1])+min(angles[:,1]))/2)
-            bisection[i] = (max(angles[:,1])+min(angles[:,1]))/2+180
+            bisection[i] = -(max(angles[:,1])+min(angles[:,1]))/2+180
             colours[i] = '-r'
-     
+                  
     return(colours, bisection)
         
 def update_position(position, colours):
