@@ -44,7 +44,7 @@ trans = plt.axes().transAxes
 w = np.linspace(1,10,N_steps)
 init_orien_x, init_orien_y = orientation_at_0(N_particles, N_steps)
 for steps in range (N_steps): # loop through timesteps
-    x,y = particle(pos[:,0,steps], pos[:,1,steps], radii[:])
+    x,y = particle(pos[:,0,steps], pos[:,1,steps], radii[:], N_particles)
     lns_timestep = []
     for i in range(N_particles): #loop through particles (want to get rid of 
                                  # this, how can we do this?)
