@@ -124,3 +124,34 @@ def force_overlap(radii,pos,F_overlap_constant):
             Force_overlap[i,:]=direction*circle_overlap(radii[i],radii[j],d)*F_overlap_constant
           
     return(Force_overlap)
+
+
+
+
+def Test_check_neighbours(pos_at_t):
+    ### Make a N by N matrix and calculate distances between all particles
+    a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
+    at=np.transpose(a)
+    
+    
+    distance_x=np.array(at-a)
+    
+    b=np.tile(pos_at_t[:,1],(len(pos_at_t),1))
+    bt=np.transpose(b)
+
+    distance_y=np.array(bt-b)
+    
+    
+    distance=np.array(np.sqrt(distance_x**2+distance_y**2))
+    #### make a True False Matrix and use it as a Mask
+    neighbors =np.array( np.logical_and(np.abs(distance)<2.7, np.abs(distance)>0.1))
+    c=np.where(neighbors==True)
+    print(np.column_stack(c))
+    nearest_distance=np.ma.array(distance,mask=~neighbors)
+    
+    
+    distance_x=np.ma.array(distance_x,mask=~neighbors)
+    distance_y=np.ma.array(distance_y,mask=~neighbors)
+    unit_vector_distance=np.array([distance_x,distance_y]/distance)
+    
+    return(neighbors,distance,nearest_distance,unit_vector_distance)
