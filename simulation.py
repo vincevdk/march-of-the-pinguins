@@ -38,6 +38,10 @@ print(deviation_0, 'deviation')
 #print(mid_angle[2,:], 'bisection')
 
 
+####data mining of the simulation####
+ACV=auto_correlation_velocity(pos,timestep=1)#what is the timestepsize?????
+MSD=mean_square_displacement(pos)
+
 ####create plot ####
 lns = []
 trans = plt.axes().transAxes
@@ -67,5 +71,6 @@ plt.grid()
 plt.axes().set_aspect('equal')
 
 ani = animation.ArtistAnimation(fig, lns, interval=50)
-#HTML(ani.to_html5_video())
+
 plt.show()
+
