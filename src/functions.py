@@ -101,7 +101,7 @@ def update_color(radii,pos,colours):
     Blues = py.get_cmap('Blues')
     overlap=np.zeros(len(pos))
     percentage_overlap=np.zeros(len(pos))
-
+    test1=np.zeros(shape=(len(radii),len(radii)))
     for i in range(len(pos)): # loop through particles
         
         dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
@@ -112,12 +112,13 @@ def update_color(radii,pos,colours):
             d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
             overlap[i]+=circle_overlap(radii[i],radii[j],d)
             percentage_overlap[i]=overlap[i]/(np.pi*radii[i])
+            test1[i,j]=circle_overlap(radii[i],radii[j],d)
         if percentage_overlap[i]==0:
             colours[i] = '-r'
         else:
  
             colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.3)[0:3])
-    return(colours)
+    return(colours,test1)
 
 def circle_overlap(R1,R2,d):
     if d<=R1+R2 and np.abs(R1-R2)<=d:
@@ -127,6 +128,19 @@ def circle_overlap(R1,R2,d):
     if np.abs(R1+R2)<d:
         a=0
     return(a)
+    
+def test_circle_overlap(radii,d):
+    R2,R1=np.meshgrid(radii,radii)
+    a=np.zeros(shape=(len(radii),len(radii)))
+    
+    a+=np.where(np.logical_and(np.logical_and(d<=R1+R2 , np.abs(R1-R2)<=d),d!=0),R1**2*np.arccos((d**2+R1**2-R2**2)/(2*d*R1))+R2**2*np.arccos((d**2-R1**2+R2**2)/(2*d*R2))-(1/2)*np.sqrt((-d+R1+R2)*(d+R1-R2)*(d-R1+R2)*(d+R1+R2)),0)
+    
+    a+=np.where((R1-R2)>d,R1**2*np.pi,0)
+    a+=np.where((R2-R1)>d,R2**2*np.pi,0)
+
+    return(a)
+
+
 
 def force_overlap(radii,pos,F_overlap_constant):
     Force_overlap=np.zeros(shape=(len(pos),2))
