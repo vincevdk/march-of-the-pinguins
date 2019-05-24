@@ -145,7 +145,10 @@ def force_overlap(radii,pos,F_overlap_constant):
     return(Force_overlap)
 
 
-
+def mean_square_displacement(pos):
+    diff=np.diff(pos)
+    sum_square=np.sum(diff**2,axis=(1,2))
+    return(sum_square)
 
 def Test_check_neighbours(pos_at_t):
     ### Make a N by N matrix and calculate distances between all particles
