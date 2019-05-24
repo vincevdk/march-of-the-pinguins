@@ -117,7 +117,6 @@ def update_color(radii,pos,colours):
         else:
  
             colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.3)[0:3])
-    test_overlap=overlap
     return(colours)
 
 def circle_overlap(R1,R2,d):
@@ -144,10 +143,18 @@ def force_overlap(radii,pos,F_overlap_constant):
           
     return(Force_overlap)
 
+def auto_correlation_velocity(pos,timestep):
+    auto_correlation=np.zeros(shape=len(pos[:,0,0]))
+    diff=np.diff(pos)
+    velocity=np.sqrt(np.sum((diff/timestep)**2,axis=1))
+    for i in range(len(pos[:,0,0])):
+        auto_correlation[i]=np.array(np.correlate(velocity[i,:],velocity[i,:]))/velocity[i,:].size
+    return(auto_correlation)
+
 
 def mean_square_displacement(pos):
     diff=np.diff(pos)
-    sum_square=np.sum(diff**2,axis=(1,2))
+    sum_square=np.mean(diff**2,axis=(1,2))
     return(sum_square)
 
 def Test_check_neighbours(pos_at_t):
