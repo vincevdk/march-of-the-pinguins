@@ -2,22 +2,31 @@ import numpy as np
 import matplotlib.pyplot as py
 from math import acos
 import matplotlib.colors as colorlib
+from src.config import *
 
+def update_position_and_orientation(position, orientation, radii, colours):
+    bisection = np.zeros(len(position))
+    neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
+    bisection = calculate_bisection(position, neighbors, distance_matrix, distance_x, distance_y)
+    #delta_theta = delta_thetas(bisection, orientation)
+    #change_torque(bisection, orientation)
+    position += 0.1
+    #colours = update_color(radii,position,colours)
+    return(position, colours, bisection)
 
-def cubic_latice(N_particles):
-    pos_at_0=np.array(np.meshgrid(range(np.int(N_particles**.5)), range(np.int(N_particles**.5)))).T.reshape(-1, 2)
-    deviations = np.random.rand(N_particles,2)*0.05
-    pos_at_0 = pos_at_0*2 + deviations
-    
-    return(pos_at_0)
+def check_for_neighbors(pos_at_t):
+    """Make a N by N matrix and calculate distances between all particles 
+    """
+    a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
+    at=np.transpose(a)
+    distance_x=np.array(at-a)
+    b=np.tile(pos_at_t[:,1],(len(pos_at_t),1))
+    bt=np.transpose(b)
+    distance_y=np.array(bt-b)
+    distance=np.array(np.sqrt(distance_x**2+distance_y**2))
+    neighbors = np.array(np.logical_and(np.abs(distance)<2.7, np.abs(distance)>0.1))
+    return(neighbors, distance, distance_x, distance_y)
 
-def orientation_at_0(N_particles, N_steps):
-    orientation = np.ones(N_particles)
-    deviation = np.random.uniform(-0.785, 0.785, N_particles)
-    deviation = np.tile(deviation, (N_steps,1))
-    orientation_x = orientation*np.cos(deviation)
-    orientation_y = orientation*np.sin(deviation)
-    return(orientation_x, orientation_y)
 
 def delta_thetas(bisection, deviation_0):
     bisection[bisection<0] = 360 - abs(bisection[bisection<0])
@@ -31,71 +40,38 @@ def noise_torque(N_particles):
     noise = np.random.uniform(1, -1, N_particles)
     return(noise)
 
-def change_torque():
-    new_torque = noise_torque(N_particles) + delta_thetas(bisection, deviation_0)
+def change_torque(bisection, deviation):
+    new_torque = noise_torque(N_particles) + delta_thetas(bisection, deviation)
     return(new_torque)
 
-def size_of_particles(N_particles, mean, standard_deviation):
-    radii = (np.random.normal(mean,standard_deviation,N_particles))
-    return(radii)
+def calculate_bisection(pos,distance, neighbors, dis_x, dis_y):
+    angles_clockwise = np.zeros(shape=(N_particles,N_particles,2))
+    angles_anticlockwise = np.zeros(shape=(N_particles,N_particles,))
+    nearest_distance = distance*neighbors
+    angles_clockwise = calculate_angle_wrt_pos_x_axis(nearest_distance, dis_x,dis_y)
+    angles_anticlockwise = calculate_angle_wrt_neg_x_axis(nearest_distance, dis_x, dis_y)
+    bisection = np.zeros((N_particles))
+    for j in range(N_particles):
+        if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
+            bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
 
-def check_for_neighbors(pos,colours):
-    bisection = np.zeros(len(pos))
-    for i in range(len(pos)): # loop through particles
-        dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
-        neighbors = np.array(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
-        angles = np.zeros(shape=(len(neighbors[0]),2))
-        for j in range(len(neighbors[0])):
+        if (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
+           bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
+    return(bisection)
 
-            difference_vector = [pos[neighbors[0][j],0]-pos[i,0],pos[neighbors[0][j],1] - pos[i,1]]
-
-            angles[j,0] = (calculate_angle_wrt_pos_x_axis(difference_vector))
-            angles[j,1] = (calculate_angle_wrt_neg_x_axis(difference_vector))
-            
-        if i == 0 or i == 4 or i == 20 or i == 24:
-            colours[i] = '-y'
-        
-        if (abs(np.amax(angles[:,0]) - np.amin(angles[:,0])) <= 180):
-            bisection[i] = (max(angles[:,0])+min(angles[:,0]))/2
-            colours[i] = '-b'
-        
-        elif (abs(np.amax(angles[:,1]) - np.amin(angles[:,1])) <= 180):
-            bisection[i] = -(max(angles[:,1])+min(angles[:,1]))/2+180
-            colours[i] = '-r'
-                  
-    return(colours, bisection)
-        
-def update_position(position, colours):
-    colours, bisection = check_for_neighbors(position,colours)
-    position += 0.1
-    return(position, colours, bisection)
-
-def calculate_angle_wrt_pos_x_axis(v):
+def calculate_angle_wrt_pos_x_axis(v, dis_x,dis_y):
     # see first answer: https://stackoverflow.com/questions/31735499/calculate-angle-clockwise-between-two-points
-
-    norm_v = np.linalg.norm(v)
+    cosx = np.divide(dis_x, v, out=np.ones_like(dis_x), where=v!=0)
+    degrees = np.arccos(cosx)*180/np.pi
+    degrees = np.where(degrees!=0, np.where(dis_y<0,degrees,360-degrees),0)
+    return(degrees)
     
-    cosx=v[0]/norm_v
-    degrees = acos(cosx) * 180/np.pi
-
-    if v[1]<=0:
-        return degrees
-    else:
-        return (360-degrees)
-    
-def calculate_angle_wrt_neg_x_axis(v):
-    # see first answer: https://stackoverflow.com/questions/31735499/calculate-\angle-clockwise-between-two-points                                              
-
-    norm_v = np.linalg.norm(v)
-
-    cosx=-v[0]/norm_v
-    degrees = acos(cosx) * 180/np.pi
-
-    if v[1]<=0:
-        return degrees
-    else:
-        return (360-degrees)
-
+def calculate_angle_wrt_neg_x_axis(v,dis_x,dis_y):
+    # see first answer: https://stackoverflow.com/questions/31735499/calculate-\angle-clockwise-between-two-points                                            
+    cosx = np.divide(-dis_x, v, out=np.ones_like(dis_x), where=v!=0)
+    degrees = np.arccos(cosx) * 180/np.pi
+    degrees = np.where(degrees!=0, np.where(dis_y<0,degrees,360-degrees),0)
+    return(degrees)
     
 def update_color(radii,pos,colours):
     Blues = py.get_cmap('Blues')
@@ -106,16 +82,13 @@ def update_color(radii,pos,colours):
         
         dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
         neighbors = np.array(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
-        
         for j in neighbors[0]:
-            
             d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
             overlap[i]+=circle_overlap(radii[i],radii[j],d)
             percentage_overlap[i]=overlap[i]/(np.pi*radii[i])
         if percentage_overlap[i]==0:
             colours[i] = '-r'
-        else:
- 
+        else: 
             colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.3)[0:3])
     test_overlap=overlap
     return(colours)
@@ -144,33 +117,3 @@ def force_overlap(radii,pos,F_overlap_constant):
           
     return(Force_overlap)
 
-
-
-
-def Test_check_neighbours(pos_at_t):
-    ### Make a N by N matrix and calculate distances between all particles
-    a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
-    at=np.transpose(a)
-    
-    
-    distance_x=np.array(at-a)
-    
-    b=np.tile(pos_at_t[:,1],(len(pos_at_t),1))
-    bt=np.transpose(b)
-
-    distance_y=np.array(bt-b)
-    
-    
-    distance=np.array(np.sqrt(distance_x**2+distance_y**2))
-    #### make a True False Matrix and use it as a Mask
-    neighbors =np.array( np.logical_and(np.abs(distance)<2.7, np.abs(distance)>0.1))
-    c=np.where(neighbors==True)
-    print(np.column_stack(c))
-    nearest_distance=np.ma.array(distance,mask=~neighbors)
-    
-    
-    distance_x=np.ma.array(distance_x,mask=~neighbors)
-    distance_y=np.ma.array(distance_y,mask=~neighbors)
-    unit_vector_distance=np.array([distance_x,distance_y]/distance)
-    
-    return(neighbors,distance,nearest_distance,unit_vector_distance)

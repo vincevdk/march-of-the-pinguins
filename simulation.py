@@ -2,7 +2,7 @@ import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from IPython.display import HTML
+#from IPython.display import HTML
 import importlib
 
 from src.functions import *
@@ -11,7 +11,7 @@ from src.allocating import*
 from src.particles import *
 
 import src.functions
-importlib.reload(src.functions)
+#importlib.reload(src.functions)
 #####initialize simulation######
 
 fig = plt.figure()
@@ -29,13 +29,13 @@ colours[:,:] = '-g'
 
 ###perform simulation
 for time_step in range(1,N_steps):
-    pos[:,:,time_step], colours[:,time_step], mid_angle[time_step,:] = update_position(pos[:,:,time_step-1],colours[:,time_step-1])
-    delta_theta[time_step, :] = delta_thetas(mid_angle[time_step-1,:], deviation_0)
+    pos[:,:,time_step], colours[:,time_step], mid_angle[time_step,:] = update_position_and_orientation(pos[:,:,time_step-1], deviation_0,radii,colours[:,time_step-1])
+#    delta_theta[time_step, :] = delta_thetas(mid_angle[time_step-1,:], deviation_0)
 mid_angle[0] = mid_angle[1]
 #print(deviation_0[0], 'deviation')
 print(deviation_0, 'deviation')
-print(delta_theta[2,:], 'delta_theta')
-print(mid_angle[2,:], 'bisection')
+#print(delta_theta[2,:], 'delta_theta')
+#print(mid_angle[2,:], 'bisection')
 
 
 ####create plot ####
@@ -67,5 +67,5 @@ plt.grid()
 plt.axes().set_aspect('equal')
 
 ani = animation.ArtistAnimation(fig, lns, interval=50)
-HTML(ani.to_html5_video())
-
+#HTML(ani.to_html5_video())
+plt.show()
