@@ -1,4 +1,4 @@
-N_particles=25
+N_particles = 25
 #L=5
 #W=5
-N_steps=2
+N_steps=50
