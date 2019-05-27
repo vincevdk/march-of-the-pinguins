@@ -17,7 +17,7 @@ fig = plt.figure()
 
 #allocate memory
 pos=allocating_variables()                                                     
-radii = size_of_particles(N_particles, 1, 0.1)
+radii = size_of_particles(N_particles, 2, 0.1)
 colours_particles = np.zeros(shape=(N_particles,N_steps),dtype='object')
 colours_orientation = np.zeros(shape=(N_particles, N_steps),dtype='object')
 orientation = np.zeros((N_particles, N_steps))
@@ -31,7 +31,8 @@ orientation[:,0] = orientation_at_0(N_particles) # orientation in radians!
 print(orientation[:,0])
 ###perform simulation
 for time_step in range(1,N_steps):
-    pos[:,:,time_step], orientation[:,time_step], colours_particles[:,time_step],colours_orientation[:,time_step] = update_position_and_orientation(
+    print("step is",time_step)
+    pos[:,:,time_step], orientation[:,time_step], colours_particles[:,time_step],colours_orientation[:,time_step],displacement = update_position_and_orientation(
         pos[:,:,time_step-1], 
         orientation[:,time_step-1],
         radii,
@@ -71,7 +72,7 @@ plt.ylabel('y')
 plt.grid()
 plt.axes().set_aspect('equal')
 
-ani = animation.ArtistAnimation(fig, lns, interval=10)
+ani = animation.ArtistAnimation(fig, lns, interval=50)
 
 plt.show()
 
