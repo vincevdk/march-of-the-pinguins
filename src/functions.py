@@ -19,7 +19,8 @@ def update_position_and_orientation(position,
                                     colours_orientation)
     torque = change_torque(bisection, orientation, neighbors)
     orientation = update_orientation(torque,orientation,radii,bisection)
-    position += 0.1
+#    force = change_force(orientation, neighbors, bisection)
+#    position = update_position(position, force, radii)
     colours = update_color(radii,position,colours_particles)
     return(position, orientation, colours_particles, colours_orientation)
 
@@ -37,23 +38,38 @@ def check_for_neighbors(pos_at_t):
     return(neighbors, distance, distance_x, distance_y)
 
 def delta_thetas(bisection, orientation):
-    orientation = orientation % 360
-    bisection = bisection % 360
-    bisection[bisection<0] = 360 - abs(bisection[bisection<0])
     delta_theta = np.zeros(len(bisection))
-    for j in range(len(bisection)):
-        if (abs(bisection[j] - orientation[j]) <= 180):
-            delta_theta[j] = (bisection[j]-orientation[j])
-        else:
-            delta_theta[j] = (bisection[j]+orientation[j])
+    non_zero_bisections = bisection.nonzero()
 
+    for j in non_zero_bisections[0]:
+        delta_theta[j] +=  ((bisection[j] - orientation[j] + 180) % 360 - 180)
     return(delta_theta)
+
+def update_position(position, force,radii):
+    print(force,'force')
+    speed = force/(radii**2)
+    position += speed # delta t = 1
+    return(position)
+    
+
+def change_force(orientation, neighbors, bisection):
+    orientation_x
+    orientation_y
+    vector_inward_force = np.zeros((N_particles,2))
+    scalar_inward_force = magnitude_inward_force(neighbors, bisection)
+    vector_inward_force[:,0] = scalar_inward_force(neighbors,bisection)*orientation_x
+    vector_inward_force[:,0] = scalar_inward_force(neighbors,bisection)*orientation_y
+    return(new_force)
+
+def magnitude_inward_force(neighbors, bisection):
+    return(bisection.nonzero())
 
 def noise_torque(N_particles):
     noise = np.sqrt(0.03)*np.random.uniform(1, -1, N_particles)
     return(noise)
 
 def boundary_torque(bisection,orientation):
+    print(delta_thetas(bisection,orientation),'nonzero??')
     return(3 * delta_thetas(bisection, orientation))
 
 def align_torque(orientation, neighbors):
@@ -70,8 +86,8 @@ def change_torque(bisection, orientation, neighbors):
     # lamdba_Tin = 3
     # lamda_n = 0.03    
     # lamda_a = 0.1
-    
-    new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
+    new_torque = boundary_torque(bisection, orientation)
+#   new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
     return(new_torque)
 
 def update_orientation(torque, orientation,radii, bisection):
@@ -87,12 +103,17 @@ def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientatio
     angles_clockwise = calculate_angle_wrt_pos_x_axis(nearest_distance, dis_x,dis_y)
     angles_anticlockwise = calculate_angle_wrt_neg_x_axis(nearest_distance, dis_x, dis_y)
     bisection = np.zeros((N_particles))
+
     for j in range(N_particles):
-        if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
-            bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
+        if (abs(np.amax(angles_clockwise[j,:]) - np.amin(
+                    angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
+            bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(
+                    angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
             colour_orientation[j] = '-r'
-        elif (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
-           bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
+        elif (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(
+                    angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
+           bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(
+                   angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
            colour_orientation[j] = '-r'
     return(bisection,colour_orientation)
 
@@ -131,9 +152,9 @@ def update_color(radii,pos,colours):
 def circle_overlap(R1,R2,d):
     if d<=R1+R2 and np.abs(R1-R2)<=d:
         a=R1**2*np.arccos((d**2+R1**2-R2**2)/(2*d*R1))+R2**2*np.arccos((d**2-R1**2+R2**2)/(2*d*R2))-(1/2)*np.sqrt((-d+R1+R2)*(d+R1-R2)*(d-R1+R2)*(d+R1+R2))
-    if np.abs(R1-R2)>d:
+    elif np.abs(R1-R2)>d:
         a=min([R1 ,R2])**2*np.pi
-    if np.abs(R1+R2)<d:
+    elif np.abs(R1+R2)<d:
         a=0
     return(a)
     

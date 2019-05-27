@@ -63,7 +63,6 @@ for steps in range (N_steps): # loop through timesteps
 
         lns_timestep.append(ln1)
         lns_timestep.append(ln2)
-        #lns_timestep.append(ln3)
     lns.append(lns_timestep)
 
 plt.xlabel('x')
@@ -71,7 +70,7 @@ plt.ylabel('y')
 plt.grid()
 plt.axes().set_aspect('equal')
 
-ani = animation.ArtistAnimation(fig, lns, interval=10)
+ani = animation.ArtistAnimation(fig, lns, interval=1000)
 
 plt.show()
 
