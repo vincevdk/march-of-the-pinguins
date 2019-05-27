@@ -9,20 +9,20 @@ def update_position_and_orientation(position,
                                     radii, 
                                     colours_particles, 
                                     colours_orientation):
-#    bisection = np.zeros(len(position))
+    bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
-#    bisection,colours_orientation = calculate_bisection(position, 
-#                                    neighbors, 
-#                                    distance_matrix, 
-#                                    distance_x, 
-#                                    distance_y,
-#                                    colours_orientation)
-#    displacement=1
-    displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
-#    torque = change_torque(bisection, orientation, neighbors)
-#    orientation = update_orientation(torque,orientation,radii,bisection)
-    position = np.add(displacement*0.1,position)+1
-    colours_particles = update_color(radii,area,colours_particles)
+    bisection,colours_orientation = calculate_bisection(position, 
+                                    neighbors, 
+                                    distance_matrix, 
+                                    distance_x, 
+                                    distance_y,
+                                    colours_orientation)
+    displacement=1
+#    displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
+    torque = change_torque(bisection, orientation, neighbors)
+    orientation = update_orientation(torque,orientation,radii,bisection)
+    position = np.add(displacement*.1,position)+1
+#    colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
 def sum_force(radii,d,distance_x, distance_y):

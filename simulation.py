@@ -17,7 +17,7 @@ fig = plt.figure()
 
 #allocate memory
 pos=allocating_variables()                                                     
-radii = size_of_particles(N_particles, 2, 0.1)
+radii = size_of_particles(N_particles, 1, 0.1)
 colours_particles = np.zeros(shape=(N_particles,N_steps),dtype='object')
 colours_orientation = np.zeros(shape=(N_particles, N_steps),dtype='object')
 orientation = np.zeros((N_particles, N_steps))
