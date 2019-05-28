@@ -11,7 +11,7 @@ def update_position_and_orientation(position,
                                     colours_orientation):
     bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
-    bisection,colours_orientation = calculate_bisection(position, 
+    bisection,colours_orientation, angle_boundary = calculate_bisection(position, 
                                     neighbors, 
                                     distance_matrix, 
                                     distance_x, 
@@ -20,11 +20,19 @@ def update_position_and_orientation(position,
     displacement = 1
     torque = change_torque(bisection, orientation, neighbors)
     orientation = update_orientation(torque,orientation,radii,bisection)
-    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation)
+    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary)
     position = np.add(displacement*0.01,position)
     colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
+def boundary_force(angle_boundary, orientation):
+    F_in = 1
+    orientation = np.radians(orientation)
+    angle_boundary = np.radians(angle_boundary)
+    F_in_x = np.cos(orientation) * angle_boundary * F_in
+    F_in_y = -np.sin(orientation) * angle_boundary * F_in
+    return(F_in_x, F_in_y)
+    
 def self_repulsion(orientation):
     k = 1
     a = 1
@@ -36,20 +44,25 @@ def self_repulsion(orientation):
     return(F_self_x, F_self_y)
     
 
-def sum_force(radii,d,distance_x, distance_y, orientation):
+def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary):
     force_x=np.zeros(shape=len(radii))
     force_y=np.zeros(shape=len(radii))
     
     force_self_x = np.zeros(shape=len(radii))
     force_self_y = np.zeros(shape=len(radii))
     
+    force_boundary_x = np.zeros(shape=len(radii))
+    force_boundary_y = np.zeros(shape=len(radii))
+    
     force_self_x, force_self_y = self_repulsion(orientation)
+    force_boundary_x, force_boundary_y = boundary_force(angle_boundary, orientation)
+    force_repulsion_x, force_repulsion_y, area = repulsion_force(radii,d,distance_x, distance_y)
+    print(force_boundary_x, 'force in')
     
     displacement=np.zeros(shape=(len(radii),2))
-    force_x,force_y, area = repulsion_force(radii,d,distance_x, distance_y)
     
-    displacement[:,0]=force_self_x
-    displacement[:,1]=force_self_y
+    displacement[:,0]=force_boundary_x + force_self_x + 10*force_repulsion_x
+    displacement[:,1]=force_boundary_y + force_self_y + 10*force_repulsion_y
 
     return(displacement,area)
 
@@ -114,14 +127,17 @@ def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientatio
     angles_clockwise = calculate_angle_wrt_pos_x_axis(nearest_distance, dis_x,dis_y)
     angles_anticlockwise = calculate_angle_wrt_neg_x_axis(nearest_distance, dis_x, dis_y)
     bisection = np.zeros((N_particles))
+    angle_boundary = np.zeros((N_particles))
     for j in range(N_particles):
         if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
             bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
+            angle_boundary[j] = (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])))
             colour_orientation[j] = '-r'
         elif (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
             bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
+            angle_boundary[j] = abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))
             colour_orientation[j] = '-r'
-    return(bisection,colour_orientation)
+    return(bisection,colour_orientation, angle_boundary)
 
 def calculate_angle_wrt_pos_x_axis(v, dis_x,dis_y):
     # see first answer: https://stackoverflow.com/questions/31735499/calculate-angle-clockwise-between-two-points
