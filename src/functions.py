@@ -17,25 +17,43 @@ def update_position_and_orientation(position,
                                     distance_x, 
                                     distance_y,
                                     colours_orientation)
-    displacement=0
-#    displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
+    displacement = 1
     torque = change_torque(bisection, orientation, neighbors)
     orientation = update_orientation(torque,orientation,radii,bisection)
-#    position = np.add(displacement*0.01,position)
-#    colours_particles = update_color(radii,area,colours_particles)
+    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation)
+    position = np.add(displacement*0.01,position)
+    colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
-def sum_force(radii,d,distance_x, distance_y):
+def self_repulsion(orientation):
+    k = 1
+    a = 1
+    lambda_s = 1
+    orientation = np.radians(orientation)
+    F_self = lambda_s/k*a
+    F_self_x = np.cos(orientation) * F_self
+    F_self_y = -np.sin(orientation) * F_self
+    return(F_self_x, F_self_y)
+    
+
+def sum_force(radii,d,distance_x, distance_y, orientation):
     force_x=np.zeros(shape=len(radii))
     force_y=np.zeros(shape=len(radii))
-    displacement=np.zeros(shape=(len(radii),2))
-
-    force_x,force_y,area=repulsion_force(radii,d,distance_x, distance_y)
-    displacement[:,0]=force_x
-    displacement[:,1]=force_y
-
     
+    force_self_x = np.zeros(shape=len(radii))
+    force_self_y = np.zeros(shape=len(radii))
+    
+    force_self_x, force_self_y = self_repulsion(orientation)
+    
+    displacement=np.zeros(shape=(len(radii),2))
+    force_x,force_y, area = repulsion_force(radii,d,distance_x, distance_y)
+    
+    displacement[:,0]=force_self_x
+    displacement[:,1]=force_self_y
+
     return(displacement,area)
+
+
 
 def check_for_neighbors(pos_at_t):
     """Make a N by N matrix and calculate distances between all particles 
@@ -79,8 +97,8 @@ def change_torque(bisection, orientation, neighbors):
     # lamdba_Tin = 3
     # lamda_n = 0.03    
     # lamda_a = 0.1
-    
-    new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
+    new_torque = align_torque(orientation, neighbors) + boundary_torque(bisection, orientation) + noise_torque(N_particles)
+    #new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
     return(new_torque)
 
 def update_orientation(torque, orientation,radii, bisection):
@@ -101,8 +119,8 @@ def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientatio
             bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
             colour_orientation[j] = '-r'
         elif (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
-           bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
-           colour_orientation[j] = '-r'
+            bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
+            colour_orientation[j] = '-r'
     return(bisection,colour_orientation)
 
 def calculate_angle_wrt_pos_x_axis(v, dis_x,dis_y):
@@ -130,10 +148,10 @@ def update_color(radii,area,colours):
 #    colours=np.where(percentage_overlap<=0.1,'-r',colorlib.to_hex( Blues(min(percentage_overlap,256))[0:3]))
     
     for i in range(len(radii)):
-        if percentage_overlap[i]<0.1:
+        if percentage_overlap[i]<0.02:
             colours[i] = '-r'
         else: 
-            colours[i]=colorlib.to_hex( Blues(min(percentage_overlap[i],256))[0:3])
+            colours[i]=colorlib.to_hex( Blues(min(percentage_overlap[i]+100,256))[0:3])
         
     
     
@@ -174,8 +192,8 @@ def repulsion_force(radii,d,distance_x, distance_y):
     force_x=np.zeros(shape=(len(radii),len(radii)))
     force_y=np.zeros(shape=(len(radii),len(radii)))
     
-    force_x=np.sum(np.where(np.logical_and(a>0.1,d>0.1),a*distance_x/d,0),axis=1)
-    force_y=np.sum(np.where(np.logical_and(a>0.1,d>0.1),a*distance_y/d,0),axis=1)
+    force_x=np.sum(np.where(np.logical_and(a>0.01,d>0.1),a*distance_x/d,0),axis=1)
+    force_y=np.sum(np.where(np.logical_and(a>0.01,d>0.1),a*distance_y/d,0),axis=1)
 
     
     return(force_x,force_y,a)
