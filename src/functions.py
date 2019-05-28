@@ -21,7 +21,7 @@ def update_position_and_orientation(position,
     displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
 #    torque = change_torque(bisection, orientation, neighbors)
 #    orientation = update_orientation(torque,orientation,radii,bisection)
-    position = np.add(displacement*0.1,position)+1
+    position = np.add(displacement*0.01,position)
     colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 

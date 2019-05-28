@@ -67,13 +67,14 @@ for steps in range (N_steps): # loop through timesteps
         #lns_timestep.append(ln3)
     lns.append(lns_timestep)
 
+plt.figure(1)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.grid()
 plt.axes().set_aspect('equal')
 
 ani = animation.ArtistAnimation(fig, lns, interval=10,blit=True)
-animation.save('basic_animation.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+ani.save("test.html")
 
 plt.show()
 
