@@ -9,20 +9,20 @@ def update_position_and_orientation(position,
                                     radii, 
                                     colours_particles, 
                                     colours_orientation):
-#    bisection = np.zeros(len(position))
+    bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
-#    bisection,colours_orientation = calculate_bisection(position, 
-#                                    neighbors, 
-#                                    distance_matrix, 
-#                                    distance_x, 
-#                                    distance_y,
-#                                    colours_orientation)
-#    displacement=1
-    displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
-#    torque = change_torque(bisection, orientation, neighbors)
-#    orientation = update_orientation(torque,orientation,radii,bisection)
-    position = np.add(displacement*0.01,position)
-    colours_particles = update_color(radii,area,colours_particles)
+    bisection,colours_orientation = calculate_bisection(position, 
+                                    neighbors, 
+                                    distance_matrix, 
+                                    distance_x, 
+                                    distance_y,
+                                    colours_orientation)
+    displacement=0
+#    displacement,area=sum_force(radii,distance_matrix,distance_x, distance_y)
+    torque = change_torque(bisection, orientation, neighbors)
+    orientation = update_orientation(torque,orientation,radii,bisection)
+#    position = np.add(displacement*0.01,position)
+#    colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
 def sum_force(radii,d,distance_x, distance_y):
@@ -51,16 +51,11 @@ def check_for_neighbors(pos_at_t):
     return(neighbors, distance, distance_x, distance_y)
 
 def delta_thetas(bisection, orientation):
-    orientation = orientation % 360
-    bisection = bisection % 360
-    bisection[bisection<0] = 360 - abs(bisection[bisection<0])
     delta_theta = np.zeros(len(bisection))
-    for j in range(len(bisection)):
-        if (abs(bisection[j] - orientation[j]) <= 180):
-            delta_theta[j] = (bisection[j]-orientation[j])
-        else:
-            delta_theta[j] = (bisection[j]+orientation[j])
+    non_zero_bisections = bisection.nonzero()
 
+    for j in non_zero_bisections[0]:
+        delta_theta[j] +=  ((bisection[j] - orientation[j] + 180) % 360 - 180)
     return(delta_theta)
 
 def noise_torque(N_particles):

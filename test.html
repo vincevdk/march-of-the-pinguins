@@ -144,29 +144,29 @@ css/font-awesome.min.css">
 </script>
 
 <div class="animation" align="center">
-    <img id="_anim_imgda38e1cac1b1412d95a5d818730f736a">
+    <img id="_anim_imgbcc9066b372a4860a3cb0ce5949c7aed">
     <br>
-    <input id="_anim_sliderda38e1cac1b1412d95a5d818730f736a" type="range" style="width:350px"
+    <input id="_anim_sliderbcc9066b372a4860a3cb0ce5949c7aed" type="range" style="width:350px"
            name="points" min="0" max="1" step="1" value="0"
-           onchange="animda38e1cac1b1412d95a5d818730f736a.set_frame(parseInt(this.value));"></input>
+           onchange="animbcc9066b372a4860a3cb0ce5949c7aed.set_frame(parseInt(this.value));"></input>
     <br>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.slower()"><i class="fa fa-minus"></i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.first_frame()"><i class="fa fa-fast-backward">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.slower()"><i class="fa fa-minus"></i></button>
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.first_frame()"><i class="fa fa-fast-backward">
         </i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.previous_frame()">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.previous_frame()">
         <i class="fa fa-step-backward"></i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.reverse_animation()">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.reverse_animation()">
         <i class="fa fa-play fa-flip-horizontal"></i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.pause_animation()"><i class="fa fa-pause">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.pause_animation()"><i class="fa fa-pause">
         </i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.play_animation()"><i class="fa fa-play"></i>
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.play_animation()"><i class="fa fa-play"></i>
         </button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.next_frame()"><i class="fa fa-step-forward">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.next_frame()"><i class="fa fa-step-forward">
         </i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.last_frame()"><i class="fa fa-fast-forward">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.last_frame()"><i class="fa fa-fast-forward">
         </i></button>
-    <button onclick="animda38e1cac1b1412d95a5d818730f736a.faster()"><i class="fa fa-plus"></i></button>
-  <form action="#n" name="_anim_loop_selectda38e1cac1b1412d95a5d818730f736a" class="anim_control">
+    <button onclick="animbcc9066b372a4860a3cb0ce5949c7aed.faster()"><i class="fa fa-plus"></i></button>
+  <form action="#n" name="_anim_loop_selectbcc9066b372a4860a3cb0ce5949c7aed" class="anim_control">
     <input type="radio" name="state"
            value="once" > Once </input>
     <input type="radio" name="state"
@@ -181,13 +181,13 @@ css/font-awesome.min.css">
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgda38e1cac1b1412d95a5d818730f736a";
-    var slider_id = "_anim_sliderda38e1cac1b1412d95a5d818730f736a";
-    var loop_select_id = "_anim_loop_selectda38e1cac1b1412d95a5d818730f736a";
-    var frames = new Array(100);
+    var img_id = "_anim_imgbcc9066b372a4860a3cb0ce5949c7aed";
+    var slider_id = "_anim_sliderbcc9066b372a4860a3cb0ce5949c7aed";
+    var loop_select_id = "_anim_loop_selectbcc9066b372a4860a3cb0ce5949c7aed";
+    var frames = new Array(37);
     
-  for (var i=0; i<100; i++){
-    frames[i] = "tes_frames/frame" + ("0000000" + i).slice(-7) +
+  for (var i=0; i<37; i++){
+    frames[i] = "test_frames/frame" + ("0000000" + i).slice(-7) +
                 ".png";
   }
 
@@ -195,7 +195,7 @@ css/font-awesome.min.css">
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animda38e1cac1b1412d95a5d818730f736a = new Animation(frames, img_id, slider_id, 10.0,
+        animbcc9066b372a4860a3cb0ce5949c7aed = new Animation(frames, img_id, slider_id, 10.0,
                                  loop_select_id);
     }, 0);
   })()
