@@ -64,6 +64,7 @@ for steps in range (N_steps): # loop through timesteps
 
         lns_timestep.append(ln1)
         lns_timestep.append(ln2)
+        #lns_timestep.append(ln3)
     lns.append(lns_timestep)
 
 plt.xlabel('x')
@@ -71,11 +72,8 @@ plt.ylabel('y')
 plt.grid()
 plt.axes().set_aspect('equal')
 
-<<<<<<< HEAD
-ani = animation.ArtistAnimation(fig, lns, interval=50)
-=======
-ani = animation.ArtistAnimation(fig, lns, interval=1000)
->>>>>>> 50c22a317274643b9d096c3852009e9011a0e6c9
+ani = animation.ArtistAnimation(fig, lns, interval=10,blit=True)
+animation.save('basic_animation.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
 
 plt.show()
 
