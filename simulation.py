@@ -3,6 +3,7 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import importlib
+from IPython.display import HTML
 
 from src.functions import *
 from src.config import *
@@ -75,6 +76,7 @@ plt.axes().set_aspect('equal')
 
 ani = animation.ArtistAnimation(fig, lns, interval=10,blit=True)
 #ani.save("test.html")
+HTML(ani.to_html5_video())
 
 plt.show()
 
