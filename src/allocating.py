@@ -1,8 +1,8 @@
 from src.config import *
 import numpy as np
 
-def cubic_latice(N_particles):
-    pos_at_0=np.array(np.meshgrid(range(np.int(N_particles**.5)), range(np.int(N_particles**.5)))).T.reshape(-1, 2)
+def cubic_latice(N_particles_x,N_particles_y):
+    pos_at_0=np.array(np.meshgrid(range(np.int(N_particles_x)), range(np.int(N_particles_y)))).T.reshape(-1, 2)
     deviations = np.random.rand(N_particles,2)*0.05
     pos_at_0 = pos_at_0*2 + deviations
     return(pos_at_0)

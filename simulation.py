@@ -24,7 +24,7 @@ colours_orientation = np.zeros(shape=(N_particles, N_steps),dtype='object')
 orientation = np.zeros((N_particles, N_steps))
 
 # initialize variables
-pos[:,:,0]=cubic_latice(N_particles)
+pos[:,:,0]=cubic_latice(N_particles_x,N_particles_y)
 colours_particles[:,:] = '-g' 
 colours_orientation[:,:] = '-b'
 
