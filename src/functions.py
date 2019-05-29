@@ -8,7 +8,7 @@ def update_position_and_orientation(position,
                                     orientation, 
                                     radii, 
                                     colours_particles, 
-                                    colours_orientation,time_size):
+                                    colours_orientation,time_size,scaling_force,scaling_torque,lambda_a,lambda_s,lambda_n,lambda_F_in,lambda_T_in):
     bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
     bisection,colours_orientation, angle_boundary = calculate_bisection(position, 
@@ -17,10 +17,10 @@ def update_position_and_orientation(position,
                                     distance_x, 
                                     distance_y,
                                     colours_orientation)
-    torque = change_torque(bisection, orientation, neighbors)
+    torque = change_torque(bisection, orientation, neighbors,lambda_a,lambda_n,lambda_T_in)
     orientation = update_orientation(torque,orientation,radii,bisection,time_size)
-    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary,time_size)
-    position = np.add(displacement*0.01,position)
+    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary,time_size,lambda_F_in,lambda_s)
+    position = np.add(displacement,position)
     colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
@@ -43,7 +43,7 @@ def self_repulsion(orientation):
     return(F_self_x, F_self_y)
     
 
-def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_size):
+def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_size,lambda_F_in,lambda_s):
 
     
     force_self_x = np.zeros(shape=len(radii))
@@ -59,8 +59,8 @@ def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_s
     
     displacement=np.zeros(shape=(len(radii),2))
     
-    displacement[:,0]=(force_boundary_x + 3*force_self_x + 10*force_repulsion_x)*time_size
-    displacement[:,1]=(force_boundary_y + 3*force_self_y + 10*force_repulsion_y)*time_size
+    displacement[:,0]=((force_boundary_x*lambda_F_in+ force_self_x*lambda_s + force_repulsion_x)*time_size)*3/32
+    displacement[:,1]=(force_boundary_y*lambda_F_in + force_self_y*lambda_s + force_repulsion_y)*time_size*3/32
 
     return(displacement,area)
 
@@ -104,11 +104,11 @@ def align_torque(orientation, neighbors):
     torque = 0.1 * orientation_mismatch 
     return(torque)
 
-def change_torque(bisection, orientation, neighbors):
+def change_torque(bisection, orientation, neighbors,lambda_a,lambda_n,lambda_T_in):
     # lamdba_Tin = 3
     # lamda_n = 0.03    
     # lamda_a = 0.1
-    new_torque = align_torque(orientation, neighbors) + boundary_torque(bisection, orientation) + noise_torque(N_particles)
+    new_torque = (align_torque(orientation, neighbors)*lambda_a + boundary_torque(bisection, orientation)*lambda_T_in + noise_torque(N_particles)*lambda_n)*1/(4*np.pi)
     #new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
     return(new_torque)
 
@@ -169,19 +169,7 @@ def update_color(radii,area,colours):
         
     
     
-    
-#    for i in range(len(pos)): # loop through particles
-#        
-#        dis_particles = (np.power(pos[i,0]-pos[:,0],2)+np.power(pos[i,1]-pos[:,1],2))**0.5
-#        neighbors = np.array(np.logical_and(dis_particles<2.7,abs(dis_particles>0.1))).nonzero()
-#        for j in neighbors[0]:
-#            d=(np.power(pos[i,0]-pos[j,0],2)+np.power(pos[i,1]-pos[j,1],2))**0.5
-#            overlap[i]+=circle_overlap(radii[i],radii[j],d)
-#            percentage_overlap[i]=overlap[i]/(np.pi*radii[i])
-#        if percentage_overlap[i]==0:
-#            colours[i] = '-r'
-#        else: 
-#            colours[i]=colorlib.to_hex( Blues(percentage_overlap[i]*10+0.3)[0:3])
+
     return(colours)
 
 def circle_overlap(R1,R2,d):
@@ -225,45 +213,6 @@ def force_overlap(radii,pos,F_overlap_constant):
           
     return(Force_overlap)
 
-def auto_correlation_velocity(pos,timestep):
-    auto_correlation=np.zeros(shape=len(pos[:,0,0]))
-    diff=np.diff(pos)
-    velocity=np.sqrt(np.sum((diff/timestep)**2,axis=1))
-    for i in range(len(pos[:,0,0])):
-        auto_correlation[i]=np.array(np.correlate(velocity[i,:],velocity[i,:]))/velocity[i,:].size
-    return(auto_correlation)
-
-def mean_square_displacement(pos):
-    diff=np.diff(pos)
-    sum_square=np.mean(diff**2,axis=(1,2))
-    return(sum_square)
-
-
-
-
-def center_of_mass(pos,radii,time_step):
-    time_step+=1
-    mass_particles=np.pi*radii**2
-    mass_pos=np.zeros(shape=(len(radii),2,time_step))
-    
-    for i in range(time_step):
-        for j in range(len(radii)):
-            for x in range(2):
-                mass_pos[j,x,i]=mass_particles[j]*pos[j,x,i]
-    
-    center_mass_in_time=np.sum(mass_pos,axis=0)/np.sum(mass_particles)
-    
-    return(center_mass_in_time)
-    
-def func_diffusion(center_mass_in_time,time_size):
-    VCMIT=np.diff(center_mass_in_time/time_size)
-    mean_VCMIT=np.mean(VCMIT**2)
-    
-    for t in range(len(VCMIT)):
-        cos_theta=(VCMIT[:,0]*VCMIT[:,t])/(np.abs(VCMIT[:,0])*np.abs(VCMIT[:,t]))
-    Diffusion=1/2*mean_VCMIT*np.sum(cos_theta)
-    return(Diffusion)
-    
 
 
 

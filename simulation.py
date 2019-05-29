@@ -9,7 +9,7 @@ from src.functions import *
 from src.config import *
 from src.allocating import*
 from src.particles import *
-
+from src.dimensionless_scaling_test import *
 import src.functions
 #importlib.reload(src.functions)
 
@@ -28,6 +28,10 @@ pos[:,:,0]=cubic_latice(N_particles_x,N_particles_y)
 colours_particles[:,:] = '-g' 
 colours_orientation[:,:] = '-b'
 
+scaling_force,scaling_torque,lambda_a,lambda_s,lambda_n,lambda_F_in,lambda_T_in=func_dimensionless_scaling(radii)
+
+
+
 orientation[:,0] = orientation_at_0(N_particles) # orientation in radians!
 print(orientation[:,0])
 ###perform simulation
@@ -38,7 +42,7 @@ for time_step in range(1,N_steps):
         orientation[:,time_step-1],
         radii,
         colours_particles[:,time_step-1], 
-        colours_orientation[:,time_step-1],time_size)
+        colours_orientation[:,time_step-1],time_size,scaling_force,scaling_torque,lambda_a,lambda_s,lambda_n,lambda_F_in,lambda_T_in)
 
 # dataprocessing
 orientation = np.radians(orientation)
