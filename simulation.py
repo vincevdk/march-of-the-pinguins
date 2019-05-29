@@ -38,7 +38,7 @@ for time_step in range(1,N_steps):
         orientation[:,time_step-1],
         radii,
         colours_particles[:,time_step-1], 
-        colours_orientation[:,time_step-1])
+        colours_orientation[:,time_step-1],time_size)
 
 # dataprocessing
 orientation = np.radians(orientation)
@@ -49,6 +49,9 @@ orientation_y = pos[:,1,:]+radius*-np.sin(orientation)
 # calculating observables
 ACV=auto_correlation_velocity(pos,timestep=1)#what is the timestepsize?
 MSD=mean_square_displacement(pos)
+# diffusion stil needs testing
+center_mass_in_time=center_of_mass(pos,radii,time_step)
+Diffusion=func_diffusion(center_mass_in_time,time_size)
 
 ####create plot ####
 lns = []
@@ -67,14 +70,16 @@ for steps in range (N_steps): # loop through timesteps
         lns_timestep.append(ln2)
         #lns_timestep.append(ln3)
     lns.append(lns_timestep)
+    print("step animation is:",steps," out of ",N_steps)
 
-plt.figure(1)
+plt.figure()
+
 plt.xlabel('x')
 plt.ylabel('y')
 plt.grid()
 plt.axes().set_aspect('equal')
 
-ani = animation.ArtistAnimation(fig, lns, interval=10,blit=True)
+ani = animation.ArtistAnimation(fig, lns, interval=20/time_size,blit=True)
 #ani.save("test.html")
 HTML(ani.to_html5_video())
 

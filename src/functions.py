@@ -8,7 +8,7 @@ def update_position_and_orientation(position,
                                     orientation, 
                                     radii, 
                                     colours_particles, 
-                                    colours_orientation):
+                                    colours_orientation,time_size):
     bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
     bisection,colours_orientation, angle_boundary = calculate_bisection(position, 
@@ -17,10 +17,9 @@ def update_position_and_orientation(position,
                                     distance_x, 
                                     distance_y,
                                     colours_orientation)
-    displacement = 1
     torque = change_torque(bisection, orientation, neighbors)
-    orientation = update_orientation(torque,orientation,radii,bisection)
-    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary)
+    orientation = update_orientation(torque,orientation,radii,bisection,time_size)
+    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary,time_size)
     position = np.add(displacement*0.01,position)
     colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
@@ -44,9 +43,8 @@ def self_repulsion(orientation):
     return(F_self_x, F_self_y)
     
 
-def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary):
-    force_x=np.zeros(shape=len(radii))
-    force_y=np.zeros(shape=len(radii))
+def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_size):
+
     
     force_self_x = np.zeros(shape=len(radii))
     force_self_y = np.zeros(shape=len(radii))
@@ -57,12 +55,12 @@ def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary):
     force_self_x, force_self_y = self_repulsion(orientation)
     force_boundary_x, force_boundary_y = boundary_force(angle_boundary, orientation)
     force_repulsion_x, force_repulsion_y, area = repulsion_force(radii,d,distance_x, distance_y)
-    print(force_boundary_x, 'force in')
+#    print(force_boundary_x, 'force in')
     
     displacement=np.zeros(shape=(len(radii),2))
     
-    displacement[:,0]=force_boundary_x + force_self_x + 10*force_repulsion_x
-    displacement[:,1]=force_boundary_y + force_self_y + 10*force_repulsion_y
+    displacement[:,0]=(force_boundary_x + 3*force_self_x + 10*force_repulsion_x)*time_size
+    displacement[:,1]=(force_boundary_y + 3*force_self_y + 10*force_repulsion_y)*time_size
 
     return(displacement,area)
 
@@ -114,10 +112,10 @@ def change_torque(bisection, orientation, neighbors):
     #new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
     return(new_torque)
 
-def update_orientation(torque, orientation,radii, bisection):
+def update_orientation(torque, orientation,radii, bisection,time_size):
     alpha_i = radii*2
     angular_velocity = torque/alpha_i
-    orientation += angular_velocity
+    orientation += angular_velocity*time_size
     return(orientation)
 
 def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientation):
@@ -239,5 +237,50 @@ def mean_square_displacement(pos):
     diff=np.diff(pos)
     sum_square=np.mean(diff**2,axis=(1,2))
     return(sum_square)
+
+
+
+
+def center_of_mass(pos,radii,time_step):
+    time_step+=1
+    mass_particles=np.pi*radii**2
+    mass_pos=np.zeros(shape=(len(radii),2,time_step))
+    
+    for i in range(time_step):
+        for j in range(len(radii)):
+            for x in range(2):
+                mass_pos[j,x,i]=mass_particles[j]*pos[j,x,i]
+    
+    center_mass_in_time=np.sum(mass_pos,axis=0)/np.sum(mass_particles)
+    
+    return(center_mass_in_time)
+    
+def func_diffusion(center_mass_in_time,time_size):
+    VCMIT=np.diff(center_mass_in_time/time_size)
+    mean_VCMIT=np.mean(VCMIT**2)
+    
+    for t in range(len(VCMIT)):
+        cos_theta=(VCMIT[:,0]*VCMIT[:,t])/(np.abs(VCMIT[:,0])*np.abs(VCMIT[:,t]))
+    Diffusion=1/2*mean_VCMIT*np.sum(cos_theta)
+    return(Diffusion)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
