@@ -27,8 +27,8 @@ def func_dimensionless_scaling(radii):
     #list lambda
     
     #these are changing througout tests
-    lambda_a=1 #[0.1,1]
-    lambda_s=0.06 #[0.04,0.08]
+    lambda_a=0.2 #[0.1,1]
+    lambda_s=0.08 #[0.04,0.08]
 
     #these are constant in all experiments
     lambda_n=0.03
