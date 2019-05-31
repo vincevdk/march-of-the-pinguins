@@ -85,6 +85,7 @@ def delta_thetas(bisection, orientation):
 
     for j in non_zero_bisections[0]:
         delta_theta[j] +=  ((bisection[j] - orientation[j] + 180) % 360 - 180)
+
     return(delta_theta)
 
 def noise_torque(N_particles):
@@ -127,13 +128,14 @@ def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientatio
     bisection = np.zeros((N_particles))
     angle_boundary = np.zeros((N_particles))
     for j in range(N_particles):
+        colour_orientation[j] = '-b'
         if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
             bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
-            angle_boundary[j] = (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])))
+            angle_boundary[j] = 180 - (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])))
             colour_orientation[j] = '-r'
         elif (abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])])) <= 180):
             bisection[j] = -(np.amax(angles_anticlockwise[j,:])+np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))/2
-            angle_boundary[j] = abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))
+            angle_boundary[j] = 180 - abs(np.amax(angles_anticlockwise[j,:]) - np.amin(angles_anticlockwise[j,np.nonzero(angles_anticlockwise[j,:])]))
             colour_orientation[j] = '-r'
     return(bisection,colour_orientation, angle_boundary)
 
