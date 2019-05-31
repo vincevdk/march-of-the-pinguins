@@ -21,7 +21,8 @@ def orientational_order_parameter(orientation):
 
 
 
-def center_of_mass(pos,radii,time_step):
+def center_of_mass(pos,radii,time_step): 
+    ## tested and works as far as we can see in the scatter plot function as shown to you before
     time_step+=1
     mass_particles=np.pi*radii**2
     mass_pos=np.zeros(shape=(len(radii),2,time_step))
@@ -36,11 +37,41 @@ def center_of_mass(pos,radii,time_step):
     return(center_mass_in_time)
     
 def func_diffusion(center_mass_in_time,time_size):
-    VCMIT=np.diff(center_mass_in_time/time_size)
-    mean_VCMIT=np.mean(VCMIT**2)
+    #### needs works and unclear what goes wrong
     
-    for t in range(len(VCMIT)):
-        cos_theta=(VCMIT[:,0]*VCMIT[:,t])/(np.abs(VCMIT[:,0])*np.abs(VCMIT[:,t]))
-    Diffusion=1/2*mean_VCMIT*np.sum(cos_theta)
+    ## <v(0)*v(t)> is an auto correlation
+    ## after which a sum over the auto correlatoin has to be done for all terms
+    
+    
+    
+    #This part calculates the velocity by calculating the difference between time steps
+    VCMIT=np.diff(center_mass_in_time)
+
+    #this function  allocates memory    
+    cosine_array=np.zeros(shape=(VCMIT.shape[1]))
+
+
+    # this functions calculates the cos(phi(t)), using vector calculas relationship for cos(x)=(a*b)/(sqrt(sum(a**2)))*sqrt(sum(b**2))))
+    for t in range(VCMIT.shape[1]):
+        cosine_array[t]=(np.sum(VCMIT[:,0]*VCMIT[:,t]))/(np.sqrt(np.sum(VCMIT[:,0]**2))*np.sqrt(np.sum(VCMIT[:,t]**2)))
+    
+    
+    ##this part of the code is wrong logical
+#    a=0
+#    for x in range(len(cosine_array)):
+#        a+=np.mean(cosine_array[0:x])
+    
+    ## V_c is average velocity
+    V_c=np.mean(np.sqrt(np.sum(VCMIT**2,axis=0)))
+#    
+    
+    ## trying to get it to work with correlate function
+    a=np.correlate(cosine_array,cosine_array,'full')
+#    a=a[a.size/2:]
+    
+    #the formula Diffusion
+    Diffusion=(1/2)*V_c**2*a
+    
+
     return(Diffusion)
     
