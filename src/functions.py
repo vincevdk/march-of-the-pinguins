@@ -2,13 +2,18 @@ import numpy as np
 import matplotlib.pyplot as py
 from math import acos
 import matplotlib.colors as colorlib
-from src.config import *
-
+#from src.config import *
+import sys
+import numpy
+numpy.set_printoptions(threshold=sys.maxsize)
 def update_position_and_orientation(position, 
                                     orientation, 
                                     radii, 
                                     colours_particles, 
-                                    colours_orientation,time_size,scaling_force,scaling_torque,lambda_a,lambda_s,lambda_n,lambda_F_in,lambda_T_in):
+                                    colours_orientation,time_size,
+                                    lambda_array):
+    
+    
     bisection = np.zeros(len(position))
     neighbors, distance_matrix, distance_x, distance_y = check_for_neighbors(position)
     bisection,colours_orientation, angle_boundary = calculate_bisection(position, 
@@ -17,10 +22,11 @@ def update_position_and_orientation(position,
                                     distance_x, 
                                     distance_y,
                                     colours_orientation)
-    torque = change_torque(bisection, orientation, neighbors,lambda_a,lambda_n,lambda_T_in)
+    torque = change_torque(bisection, orientation, neighbors,lambda_array[0],lambda_array[2],lambda_array[4])
     orientation = update_orientation(torque,orientation,radii,bisection,time_size)
-    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary,time_size,lambda_F_in,lambda_s)
+    displacement, area=sum_force(radii,distance_matrix,distance_x, distance_y, orientation, angle_boundary,time_size,lambda_array[3],lambda_array[1])
     position = np.add(displacement,position)
+
     colours_particles = update_color(radii,area,colours_particles)
     return(position, orientation, colours_particles, colours_orientation,displacement)
 
@@ -42,10 +48,8 @@ def self_repulsion(orientation):
     F_self_y = -np.sin(orientation) * F_self
     return(F_self_x, F_self_y)
     
-
 def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_size,lambda_F_in,lambda_s):
 
-    
     force_self_x = np.zeros(shape=len(radii))
     force_self_y = np.zeros(shape=len(radii))
     
@@ -55,20 +59,17 @@ def sum_force(radii,d,distance_x, distance_y, orientation, angle_boundary,time_s
     force_self_x, force_self_y = self_repulsion(orientation)
     force_boundary_x, force_boundary_y = boundary_force(angle_boundary, orientation)
     force_repulsion_x, force_repulsion_y, area = repulsion_force(radii,d,distance_x, distance_y)
-#    print(force_boundary_x, 'force in')
     
     displacement=np.zeros(shape=(len(radii),2))
     
     displacement[:,0]=((force_boundary_x*lambda_F_in+ force_self_x*lambda_s + force_repulsion_x)*time_size)*3/32
     displacement[:,1]=(force_boundary_y*lambda_F_in + force_self_y*lambda_s + force_repulsion_y)*time_size*3/32
-
     return(displacement,area)
-
-
 
 def check_for_neighbors(pos_at_t):
     """Make a N by N matrix and calculate distances between all particles 
     """
+
     a=np.tile(pos_at_t[:,0],(len(pos_at_t),1))
     at=np.transpose(a)
     distance_x=np.array(at-a)
@@ -109,8 +110,7 @@ def change_torque(bisection, orientation, neighbors,lambda_a,lambda_n,lambda_T_i
     # lamdba_Tin = 3
     # lamda_n = 0.03    
     # lamda_a = 0.1
-    new_torque = (align_torque(orientation, neighbors)*lambda_a + boundary_torque(bisection, orientation)*lambda_T_in + noise_torque(N_particles)*lambda_n)*1/(4*np.pi)
-    #new_torque = align_torque(orientation, neighbors) + noise_torque(N_particles)  + boundary_torque(bisection, orientation)
+    new_torque = (align_torque(orientation, neighbors)*lambda_a + boundary_torque(bisection, orientation)*lambda_T_in + noise_torque(len(orientation))*lambda_n)*1/(4*np.pi)
     return(new_torque)
 
 def update_orientation(torque, orientation,radii, bisection,time_size):
@@ -120,14 +120,14 @@ def update_orientation(torque, orientation,radii, bisection,time_size):
     return(orientation)
 
 def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientation):
-    angles_clockwise = np.zeros(shape=(N_particles,N_particles,2))
-    angles_anticlockwise = np.zeros(shape=(N_particles,N_particles,))
+    angles_clockwise = np.zeros(shape=(len(pos),len(pos),2))
+    angles_anticlockwise = np.zeros(shape=(len(pos),len(pos),))
     nearest_distance = distance*neighbors
     angles_clockwise = calculate_angle_wrt_pos_x_axis(nearest_distance, dis_x,dis_y)
     angles_anticlockwise = calculate_angle_wrt_neg_x_axis(nearest_distance, dis_x, dis_y)
-    bisection = np.zeros((N_particles))
-    angle_boundary = np.zeros((N_particles))
-    for j in range(N_particles):
+    bisection = np.zeros((len(pos)))
+    angle_boundary = np.zeros((len(pos)))
+    for j in range(len(pos)):
         colour_orientation[j] = '-b'
         if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
             bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
@@ -158,9 +158,6 @@ def update_color(radii,area,colours):
     surface_area_circle=np.pi*radii**2
     
     percentage_overlap=np.sum(area,axis=1)/surface_area_circle
-    
-
-    
 #    colours=np.where(percentage_overlap<=0.1,'-r',colorlib.to_hex( Blues(min(percentage_overlap,256))[0:3]))
     
     for i in range(len(radii)):
@@ -168,10 +165,6 @@ def update_color(radii,area,colours):
             colours[i] = '-r'
         else: 
             colours[i]=colorlib.to_hex( Blues(min(percentage_overlap[i]+100,256))[0:3])
-        
-    
-    
-
     return(colours)
 
 def circle_overlap(R1,R2,d):
@@ -185,6 +178,7 @@ def circle_overlap(R1,R2,d):
     
 def repulsion_force(radii,d,distance_x, distance_y):
     R2,R1=np.meshgrid(radii,radii)
+
     d=np.abs(d)
     a=np.zeros(shape=(len(radii),len(radii)))
     

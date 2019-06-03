@@ -14,15 +14,11 @@ def mean_square_displacement(pos):
     return(sum_square)
 
 def orientational_order_parameter(orientation):
-    order_parameter = np.mean(orientation, axis = 1)
+    order_parameter = np.abs(np.mean(orientation))
     return(order_parameter)
 
 
-
-
-
-def center_of_mass(pos,radii,time_step): 
-    ## tested and works as far as we can see in the scatter plot function as shown to you before
+def center_of_mass(pos,radii,time_step):
     time_step+=1
     mass_particles=np.pi*radii**2
     mass_pos=np.zeros(shape=(len(radii),2,time_step))
@@ -30,8 +26,7 @@ def center_of_mass(pos,radii,time_step):
     for i in range(time_step):
         for j in range(len(radii)):
             for x in range(2):
-                mass_pos[j,x,i]=mass_particles[j]*pos[j,x,i]
-    
+                mass_pos[j,x,i]=mass_particles[j]*pos[j,x,i]    
     center_mass_in_time=np.sum(mass_pos,axis=0)/np.sum(mass_particles)
     
     return(center_mass_in_time)
