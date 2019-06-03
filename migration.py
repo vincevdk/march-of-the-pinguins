@@ -79,7 +79,7 @@ if __name__ == "__main__":
     N_particles_y = 20
 
     #number of timesteps
-    N_steps = 300
+    N_steps = 10000
     time_size = 3
     lambda_array = [lambda_a, lambda_s, lambda_n, lambda_F_in, lambda_T_in]
     colours_particles, colours_orientation, orientation, pos,radii = perform_simulation(N_particles_x, 
@@ -118,9 +118,10 @@ if __name__ == "__main__":
             j += 1
     print(order_parameter)
     plt.figure()
-    x = np.arange(j)
+    x = np.arange(j)*100
+    print(x,'x')
     plt.plot(x[30:],order_parameter[30:])
-    plt.xlabel('steps')
+    plt.xlabel(r'$\tau$')
     plt.ylabel(r'$\phi$')
 #    plt.show()
     plt.figure()

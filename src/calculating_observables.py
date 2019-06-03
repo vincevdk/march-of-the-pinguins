@@ -33,21 +33,16 @@ def center_of_mass(pos,radii,time_step):
     
 def func_diffusion(center_mass_in_time,time_size):
     #### needs works and unclear what goes wrong
-    
-    ## <v(0)*v(t)> is an auto correlation
-    ## after which a sum over the auto correlatoin has to be done for all terms
-    
+      
     #This part calculates the velocity by calculating the difference between time steps
     VCMIT=np.diff(center_mass_in_time)
 
     #this function  allocates memory    
     cosine_array=np.zeros(shape=(VCMIT.shape[1]))
 
-
     # this functions calculates the cos(phi(t)), using vector calculas relationship for cos(x)=(a*b)/(sqrt(sum(a**2)))*sqrt(sum(b**2))))
     for t in range(VCMIT.shape[1]):
-        cosine_array[t]=(np.sum(VCMIT[:,0]*VCMIT[:,t]))/(np.sqrt(np.sum(VCMIT[:,0]**2))*np.sqrt(np.sum(VCMIT[:,t]**2)))
-    
+        cosine_array[t]=(np.sum(VCMIT[:,0]*VCMIT[:,t]))/(np.sqrt(np.sum(VCMIT[:,0]**2))*np.sqrt(np.sum(VCMIT[:,t]**2)))    
     
     ##this part of the code is wrong logical
 #    a=0

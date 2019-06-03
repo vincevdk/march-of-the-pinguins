@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import importlib
 #from IPython.display import HTML
-
+import ffmpeg
 from src.functions import *
 #from src.config import *
 from src.allocating import*
@@ -41,7 +41,6 @@ def perform_simulation(N_particles_x, N_particles_y, lambda_array, N_steps):
                                                        colours_particles[:,time_step-1], 
                                                        colours_orientation[:,time_step-1],
                                                        time_size, lambda_array)
-
     # dataprocessing
     orientation = np.radians(orientation)
     return(colours_particles,colours_orientation, orientation, pos, radii)
@@ -78,7 +77,7 @@ if __name__ == "__main__":
     N_particles_y = 10
 
     #number of timesteps
-    N_steps = 15000
+    N_steps = 100
     time_size = 3
     lambda_array = [lambda_a, lambda_s, lambda_n, lambda_F_in, lambda_T_in]
     colours_particles, colours_orientation, orientation, pos,radii = perform_simulation(N_particles_x, 
@@ -121,7 +120,8 @@ if __name__ == "__main__":
     plt.axes().set_aspect('equal')
 
     ani = animation.ArtistAnimation(fig, lns, interval=20/time_size,blit=True)
-
+    FFwriter = animation.FFMpegWriter(fps=30, codec="libx264")     
+    ani.save('basic_animation1.mp4', writer = FFwriter )
     #HTML(ani.to_html5_video())
 
     plt.show()
