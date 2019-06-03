@@ -14,7 +14,7 @@ def mean_square_displacement(pos):
     return(sum_square)
 
 def orientational_order_parameter(orientation):
-    order_parameter = np.abs(np.mean(orientation))
+    order_parameter = np.sqrt(np.sum(np.cos(orientation))**2+np.sum(np.sin(orientation))**2)/len(orientation)
     return(order_parameter)
 
 
@@ -36,8 +36,6 @@ def func_diffusion(center_mass_in_time,time_size):
     
     ## <v(0)*v(t)> is an auto correlation
     ## after which a sum over the auto correlatoin has to be done for all terms
-    
-    
     
     #This part calculates the velocity by calculating the difference between time steps
     VCMIT=np.diff(center_mass_in_time)
