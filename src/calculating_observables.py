@@ -8,10 +8,9 @@ def auto_correlation_velocity(pos,timestep):
         auto_correlation[i]=np.array(np.correlate(velocity[i,:],velocity[i,:]))/velocity[i,:].size
     return(auto_correlation)
 
-def mean_square_displacement(pos):
-    diff=np.diff(pos)
-    sum_square=np.mean(diff**2,axis=(1,2))
-    return(sum_square)
+def mean_square_displacement(pos_at_t,pos_zero):
+    msd = np.mean(np.power(pos_at_t-pos_zero,2))
+    return(msd)
 
 def orientational_order_parameter(orientation):
     order_parameter = np.sqrt(np.sum(np.cos(orientation))**2+np.sum(np.sin(orientation))**2)/len(orientation)

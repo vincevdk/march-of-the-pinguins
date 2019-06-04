@@ -130,6 +130,7 @@ def calculate_bisection(pos,distance, neighbors, dis_x, dis_y, colour_orientatio
     for j in range(len(pos)):
         colour_orientation[j] = '-b'
         if (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])) <= 180):
+
             bisection[j] = (np.amax(angles_clockwise[j,:])+np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])]))/2+180 
             angle_boundary[j] = 180 - (abs(np.amax(angles_clockwise[j,:]) - np.amin(angles_clockwise[j,np.nonzero(angles_clockwise[j,:])])))
             colour_orientation[j] = '-r'

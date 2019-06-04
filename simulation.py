@@ -12,10 +12,10 @@ from src.particles import *
 from src.calculating_observables import *
 import src.functions
 #importlib.reload(src.functions)
-
+#plt.rcParams['animation.ffmpeg_path'] = '/opt/local/bin/ffmpeg'
 #####initialize simulation######
 fig = plt.figure()
-
+print(ffmpeg,'ffmpeg')
 
 # initialize variables
 def perform_simulation(N_particles_x, N_particles_y, lambda_array, N_steps):
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     N_particles_y = 10
 
     #number of timesteps
-    N_steps = 100
+    N_steps = 300
     time_size = 3
     lambda_array = [lambda_a, lambda_s, lambda_n, lambda_F_in, lambda_T_in]
     colours_particles, colours_orientation, orientation, pos,radii = perform_simulation(N_particles_x, 
